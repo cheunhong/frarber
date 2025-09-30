@@ -27,7 +27,7 @@ dependencies = [
 ]
 
 [project.scripts]
-frarber = "frarber.cli.main:app"
+frarber = "frarber.main:app"
 
 [build-system]
 requires = ["hatchling"]
