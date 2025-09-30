@@ -23,7 +23,6 @@ def create_exchange(exchange: ExchangeType) -> Exchange:
     if exchange not in ALLOWED_EXCHANGES:
         raise ValueError(f"Exchange {exchange} is not supported.")
     return getattr(ccxtpro, exchange.value)(
-        exchange,
         ConstructorArgs(
             apiKey=exchange_config.api_key.get_secret_value(),
             secret=exchange_config.api_secret.get_secret_value(),
