@@ -115,3 +115,7 @@ def price_diff(
             pass
 
     asyncio.run(main())
+
+
+if __name__ == "__main__":
+    app()
