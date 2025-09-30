@@ -17,6 +17,8 @@ def create_exchange(exchange: ExchangeType) -> Exchange:
     """
     config = load_config()
     exchanges = config.exchanges
+    if exchange not in exchanges:
+        raise ValueError(f"Exchange {exchange} is not configured.")
     exchange_config = exchanges[exchange]
     if exchange not in ALLOWED_EXCHANGES:
         raise ValueError(f"Exchange {exchange} is not supported.")
