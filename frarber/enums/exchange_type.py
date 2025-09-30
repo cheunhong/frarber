@@ -1,0 +1,28 @@
+from enum import Enum
+
+
+class ExchangeType(Enum):
+    BINANCE = "binance"
+    BINANCE_COINM = "binancecoinm"
+    BINANCE_USDM = "binanceusdm"
+    BITGET = "bitget"
+    BITMEX = "bitmex"
+    BITUNIX = "bitunix"
+    BYBIT = "bybit"
+    COINBASE = "coinbase"
+    COINEX = "coinex"
+    COINW = "coinw"
+    DERIBIT = "deribit"
+    GATEIO = "gateio"
+    GEMINI = "gemini"
+    HUOBI = "huobi"
+    HYPERLIQUID = "hyperliquid"
+    KRAKEN = "kraken"
+    KUCOIN = "kucoin"
+    KUCOIN_FUTURES = "kucoinfutures"
+    OKX = "okx"
+    PHEMEX = "phemex"
+    UPBIT = "upbit"
+    WOO = "woo"
+    MEXC = "mexc"
+    LBANK = "lbank"

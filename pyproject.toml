@@ -1,0 +1,61 @@
+[project]
+name = "frarber"
+version = "0.1.0"
+description = "Crypto arbitrage trading bot"
+authors = [
+    {name = "cheunhong", email = "chlin6755@gmail.com"}
+]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = ">=3.11,<3.12"
+keywords = ["trading", "crypto", "arbitrage", "bot", "plutous"]
+classifiers = [
+    "Programming Language :: Python :: 3.11",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Development Status :: 3 - Alpha",
+    "Topic :: Office/Business :: Financial",
+]
+
+dependencies = [
+    "ccxt>=v4.5.6",
+    "pydantic>=1.8.2",
+    "loguru>=0.6.0",
+    "typer>=0.9.0",
+    "PyYAML>=6.0",
+]
+
+[project.scripts]
+frarber = "frarber.cli.main:app"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+# Development tools configuration
+[tool.ruff]
+target-version = "py311"
+line-length = 88
+extend-exclude = ["migrations"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "C90", "I", "N", "UP", "B", "A", "C4", "PIE", "T20"]
+ignore = ["E501", "B008", "B904"]
+
+[tool.black]
+target-version = ["py311"]
+line-length = 88
+extend-exclude = "migrations"
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
