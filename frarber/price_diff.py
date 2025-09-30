@@ -3,10 +3,9 @@ import time
 from typing import AsyncGenerator
 
 from ccxt.base.exchange import Exchange
+from frarber.enums.exchange_type import ExchangeType
 from loguru import logger
 from pydantic import BaseModel, Field
-
-from frarber.enums.exchange_type import ExchangeType
 
 
 class PriceDifferenceData(BaseModel):
@@ -64,11 +63,13 @@ async def stream_price_diff(
     :param log_updates: Whether to log price updates
     :yield: PriceDifferenceData objects with current price information
     """
+    buy_exchange_type = ExchangeType(buy_exchange.__class__.__name__)
+    sell_exchange_type = ExchangeType(sell_exchange.__class__.__name__)
 
     try:
         logger.info(
             f"Starting price difference stream for {symbol} | "
-            f"Long: {buy_exchange.name} | Short: {sell_exchange.name}"
+            f"Long: {buy_exchange_type} | Short: {sell_exchange_type}"
         )
 
         while True:
