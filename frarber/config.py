@@ -15,7 +15,7 @@ class ExchangeConfig(BaseModel):
     api_secret: SecretStr
     password: Optional[SecretStr] = None
     slow: bool = False
-    hedge_mode: bool = False
+    hedged_mode: bool = False
 
 
 class Config(BaseModel):
