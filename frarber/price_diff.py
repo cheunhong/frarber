@@ -81,8 +81,11 @@ async def stream_price_diff(
                     return_exceptions=True,
                 )
 
-                best_ask, best_ask_size = buy_orderbook["asks"][0]  # Best ask price
-                best_bid, best_bid_size = sell_orderbook["bids"][0]  # Best bid price
+                best_ask = buy_orderbook["asks"][0][0]  # Best ask price
+                best_ask_size = buy_orderbook["asks"][0][1]  # Best ask size
+
+                best_bid = sell_orderbook["bids"][0][0]  # Best bid price
+                best_bid_size = sell_orderbook["bids"][0][1]  # Best bid size
 
                 # Create data object
                 price_data = PriceDifferenceData(
