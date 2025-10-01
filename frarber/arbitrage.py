@@ -71,13 +71,13 @@ async def create_arbitrage_order(
     short_exchange_config = exchanges[short_exchange_type]
     long_params = {}
     short_params = {}
-    if long_exchange_config.hedge_mode:
+    if long_exchange_config.hedged_mode:
         long_params = derive_hedged_mode_order_params(
             exchange=long_exchange_type,
             action=action,
             position_side=PositionSide.LONG,
         )
-    if short_exchange_config.hedge_mode:
+    if short_exchange_config.hedged_mode:
         short_params = derive_hedged_mode_order_params(
             exchange=short_exchange_type,
             action=action,
