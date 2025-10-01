@@ -11,7 +11,7 @@ from frarber.enums.position_side import PositionSide
 from .price_diff import stream_price_diff
 
 DEFAULT_TIMEOUT = 1800  # 30 minutes
-DEFAULT_THRESHOLD = 0.001  # 0.1% price difference threshold
+DEFAULT_THRESHOLD = 0.0  # 0.0% price difference threshold
 
 
 def derive_hedged_mode_order_params(
