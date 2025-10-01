@@ -31,5 +31,9 @@ def create_exchange(exchange: ExchangeType) -> Exchange:
                 if exchange_config.password
                 else None
             ),
+            options={
+                "brokerId": None,
+                "broker": None,
+            },
         ),
     )
