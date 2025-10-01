@@ -106,7 +106,7 @@ frarber price-diff [BUY_EXCHANGE] [SELL_EXCHANGE] [SYMBOL]
 
 **Example:**
 ```bash
-frarber price-diff binanceusdm bybit BTC/USDT
+frarber price-diff binanceusdm bybit BTC/USDT:USDT
 ```
 
 **Options:**
@@ -123,12 +123,12 @@ frarber open [LONG_EXCHANGE] [SHORT_EXCHANGE] [SYMBOL] [TOTAL_SIZE]
 
 **Example:**
 ```bash
-frarber open binanceusdm bybit BTC/USDT:USDT 0.1
-```
+frarber open binanceusdm bybit BTC/USDT:USDT 0.1 --threshold 0.1
+``` 
 
 **Options:**
 - `--timeout`: Maximum time to wait for arbitrage completion in seconds (default: 1800)
-- `--threshold`: Price difference threshold for arbitrage opportunity as decimal (default: 0.001)
+- `--threshold`: Price difference threshold for arbitrage opportunity as decimal (default: 0.0)
 
 ### 3. Close Arbitrage Position
 
