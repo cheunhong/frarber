@@ -1,3 +1,4 @@
+import asyncio
 import time
 
 from ccxt.base.exchange import Exchange
@@ -116,19 +117,21 @@ async def create_arbitrage_order(
         )
 
         # Place limit orders at best prices
-        await long_exchange.create_order(
-            symbol=symbol,
-            type="market",
-            side="buy" if action == Action.OPEN else "sell",
-            amount=current_order_size,
-            params=long_params,
-        )
-        await short_exchange.create_order(
-            symbol=symbol,
-            type="market",
-            side="sell" if action == Action.OPEN else "buy",
-            amount=current_order_size,
-            params=short_params,
+        await asyncio.gather(
+            long_exchange.create_order(
+                symbol=symbol,
+                type="market",
+                side="buy" if action == Action.OPEN else "sell",
+                amount=current_order_size,
+                params=long_params,
+            ),
+            short_exchange.create_order(
+                symbol=symbol,
+                type="market",
+                side="sell" if action == Action.OPEN else "buy",
+                amount=current_order_size,
+                params=short_params,
+            ),
         )
 
         transacted_size += current_order_size
