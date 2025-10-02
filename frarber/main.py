@@ -46,6 +46,11 @@ def open(
         )
     )
 
+    async def close_exchanges():
+        await asyncio.gather(long_exchange.close(), short_exchange.close())
+
+    asyncio.run(close_exchanges())
+
 
 @app.command()
 def close(
@@ -82,6 +87,11 @@ def close(
         )
     )
 
+    async def close_exchanges():
+        await asyncio.gather(long_exchange.close(), short_exchange.close())
+
+    asyncio.run(close_exchanges())
+
 
 @app.command()
 def price_diff(
@@ -113,6 +123,7 @@ def price_diff(
             log_updates=log_updates,
         ):
             pass
+        await asyncio.gather(buy_exchange.close(), sell_exchange.close())
 
     asyncio.run(main())
 

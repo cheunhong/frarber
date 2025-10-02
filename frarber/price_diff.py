@@ -67,53 +67,39 @@ async def stream_price_diff(
     buy_exchange_type = ExchangeType(buy_exchange.__class__.__name__)
     sell_exchange_type = ExchangeType(sell_exchange.__class__.__name__)
 
-    try:
-        logger.info(
-            f"Starting price difference stream for {symbol} | "
-            f"Long: {buy_exchange_type} | Short: {sell_exchange_type}"
+    logger.info(
+        f"Starting price difference stream for {symbol} | "
+        f"Long: {buy_exchange_type} | Short: {sell_exchange_type}"
+    )
+
+    while True:
+        buy_orderbook, sell_orderbook = await asyncio.gather(
+            buy_exchange.watch_order_book(symbol),
+            sell_exchange.watch_order_book(symbol),
+            return_exceptions=True,
         )
 
-        while True:
-            try:
-                # Fetch order books concurrently
-                buy_orderbook, sell_orderbook = await asyncio.gather(
-                    buy_exchange.watch_order_book(symbol),
-                    sell_exchange.watch_order_book(symbol),
-                    return_exceptions=True,
-                )
+        best_ask = buy_orderbook["asks"][0][0]  # Best ask price
+        best_ask_size = buy_orderbook["asks"][0][1]  # Best ask size
 
-                best_ask = buy_orderbook["asks"][0][0]  # Best ask price
-                best_ask_size = buy_orderbook["asks"][0][1]  # Best ask size
+        best_bid = sell_orderbook["bids"][0][0]  # Best bid price
+        best_bid_size = sell_orderbook["bids"][0][1]  # Best bid size
 
-                best_bid = sell_orderbook["bids"][0][0]  # Best bid price
-                best_bid_size = sell_orderbook["bids"][0][1]  # Best bid size
+        # Create data object
+        price_data = PriceDifferenceData(
+            symbol=symbol,
+            buy_exchange=buy_exchange_type,
+            sell_exchange=sell_exchange_type,
+            best_ask=best_ask,
+            best_bid=best_bid,
+            best_ask_size=best_ask_size,
+            best_bid_size=best_bid_size,
+            timestamp=time.time(),
+        )
 
-                # Create data object
-                price_data = PriceDifferenceData(
-                    symbol=symbol,
-                    buy_exchange=buy_exchange_type,
-                    sell_exchange=sell_exchange_type,
-                    best_ask=best_ask,
-                    best_bid=best_bid,
-                    best_ask_size=best_ask_size,
-                    best_bid_size=best_bid_size,
-                    timestamp=time.time(),
-                )
+        if log_updates:
+            logger.info(str(price_data))
 
-                if log_updates:
-                    logger.info(str(price_data))
+        yield price_data
 
-                yield price_data
-
-            except Exception as e:
-                logger.error(f"Error in price difference stream: {e}")
-                await asyncio.sleep(update_interval)
-                continue
-
-            await asyncio.sleep(update_interval)
-
-    finally:
-        # Clean up connections
-        await buy_exchange.close()
-        await sell_exchange.close()
-        logger.info("Price difference stream closed")
+        await asyncio.sleep(update_interval)

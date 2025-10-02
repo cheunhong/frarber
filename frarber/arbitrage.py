@@ -110,6 +110,10 @@ async def create_arbitrage_order(
             price_data.best_bid_size,
             remaining_size,
         )
+        current_order_size = max(
+            long_exchange.amount_to_precision(symbol, current_order_size),
+            short_exchange.amount_to_precision(symbol, current_order_size),
+        )
 
         logger.info(
             f"Arbitrage opportunity detected: {price_data}. Placing orders of size {current_order_size} {symbol} "
@@ -140,6 +144,4 @@ async def create_arbitrage_order(
             f"({transacted_size}/{total_size} completed)"
         )
 
-    await long_exchange.close()
-    await short_exchange.close()
     logger.info("Arbitrage order completed.")
