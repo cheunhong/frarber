@@ -138,7 +138,7 @@ async def create_arbitrage_order(
             ),
         )
 
-        transacted_size += current_order_size
+        transacted_size += float(current_order_size)
         logger.info(
             f"Successfully placed arbitrage orders of size {current_order_size} {symbol} "
             f"({transacted_size}/{total_size} completed)"
