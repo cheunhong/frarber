@@ -110,10 +110,28 @@ async def create_arbitrage_order(
             price_data.best_bid_size,
             remaining_size,
         )
-        current_order_size = max(
-            long_exchange.amount_to_precision(symbol, current_order_size),
-            short_exchange.amount_to_precision(symbol, current_order_size),
+        current_order_size = float(
+            max(
+                long_exchange.amount_to_precision(symbol, current_order_size),
+                short_exchange.amount_to_precision(symbol, current_order_size),
+            )
         )
+
+        long_notional = current_order_size * price_data.best_ask
+        short_notional = current_order_size * price_data.best_bid
+        min_long_notional = long_exchange.market(symbol)["limits"]["cost"]["min"]
+        min_short_notional = short_exchange.market(symbol)["limits"]["cost"]["min"]
+
+        if min_long_notional is not None and long_notional < min_long_notional:
+            logger.warning(
+                f"Skipping arbitrage order due to minimum notional requirement on {long_exchange.__class__.__name__}: {min_long_notional}"
+            )
+            continue
+        if min_short_notional is not None and short_notional < min_short_notional:
+            logger.warning(
+                f"Skipping arbitrage order due to minimum notional requirement on {short_exchange.__class__.__name__}: {min_short_notional}"
+            )
+            continue
 
         logger.info(
             f"Arbitrage opportunity detected: {price_data}. Placing orders of size {current_order_size} {symbol} "
