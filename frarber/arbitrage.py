@@ -1,6 +1,7 @@
 import asyncio
 import time
 
+from ccxt.base.errors import InvalidOrder
 from ccxt.base.exchange import Exchange
 from loguru import logger
 
@@ -110,12 +111,16 @@ async def create_arbitrage_order(
             price_data.best_bid_size,
             remaining_size,
         )
-        current_order_size = float(
-            max(
-                long_exchange.amount_to_precision(symbol, current_order_size),
-                short_exchange.amount_to_precision(symbol, current_order_size),
+        try:
+            current_order_size = float(
+                max(
+                    long_exchange.amount_to_precision(symbol, current_order_size),
+                    short_exchange.amount_to_precision(symbol, current_order_size),
+                )
             )
-        )
+        except InvalidOrder as e:
+            logger.warning(f"Skipping order due to precision error: {e}")
+            continue
 
         long_notional = current_order_size * price_data.best_ask
         short_notional = current_order_size * price_data.best_bid
