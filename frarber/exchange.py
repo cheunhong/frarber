@@ -1,3 +1,5 @@
+from typing import Optional
+
 import ccxt.pro as ccxtpro
 from ccxt.base.exchange import Exchange
 from ccxt.base.types import ConstructorArgs
@@ -7,7 +9,7 @@ from frarber.constants import ALLOWED_EXCHANGES
 from frarber.enums.exchange_type import ExchangeType
 
 
-def create_exchange(exchange: ExchangeType) -> Exchange:
+def create_exchange(exchange: ExchangeType, verbose: bool = False) -> Exchange:
     """
     Create an instance of the specified exchange.
 
@@ -15,6 +17,14 @@ def create_exchange(exchange: ExchangeType) -> Exchange:
     :param config: Optional configuration parameters for the exchange.
     :return: An instance of the specified exchange.
     """
+    options: dict[str, Optional[str]] = {
+        "brokerId": None,
+        "broker": None,
+    }
+    if exchange == ExchangeType.BITGET:
+        # Bitget cant serialize None broker
+        options["broker"] = "a"
+
     config = load_config()
     exchanges = config.exchanges
     if exchange not in exchanges:
@@ -31,9 +41,7 @@ def create_exchange(exchange: ExchangeType) -> Exchange:
                 if exchange_config.password
                 else None
             ),
-            options={
-                "brokerId": None,
-                "broker": None,
-            },
+            options=options,
+            verbose=verbose,
         ),
     )
