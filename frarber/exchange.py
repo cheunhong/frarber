@@ -9,7 +9,11 @@ from frarber.constants import ALLOWED_EXCHANGES
 from frarber.enums.exchange_type import ExchangeType
 
 
-def create_exchange(exchange: ExchangeType, verbose: bool = False) -> Exchange:
+def create_exchange(
+    exchange: ExchangeType,
+    with_credential: bool = True,
+    verbose: bool = False,
+) -> Exchange:
     """
     Create an instance of the specified exchange.
 
@@ -17,6 +21,9 @@ def create_exchange(exchange: ExchangeType, verbose: bool = False) -> Exchange:
     :param config: Optional configuration parameters for the exchange.
     :return: An instance of the specified exchange.
     """
+    if not with_credential:
+        return getattr(ccxtpro, exchange.value)()
+
     options: dict[str, Optional[str]] = {
         "brokerId": None,
         "broker": None,

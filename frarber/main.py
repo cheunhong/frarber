@@ -111,8 +111,8 @@ def price_diff(
     :param log_updates: Whether to log price updates
     """
 
-    buy_exchange = create_exchange(buy_exchange_type)
-    sell_exchange = create_exchange(sell_exchange_type)
+    buy_exchange = create_exchange(buy_exchange_type, with_credential=False)
+    sell_exchange = create_exchange(sell_exchange_type, with_credential=False)
 
     async def main():
         async for _ in stream_price_diff(
