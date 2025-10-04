@@ -22,6 +22,7 @@ class Config(BaseModel):
     """Pydantic model for the main configuration."""
 
     exchanges: dict[ExchangeType, ExchangeConfig] = {}
+    http_proxy: Optional[str] = None
 
 
 CONFIG_PATH = Path(os.environ.get("FRARBER_CONFIG_PATH", "./frarber.yaml"))

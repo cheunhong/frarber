@@ -49,6 +49,7 @@ def create_exchange(
                 else None
             ),
             options=options,
+            httpProxy=config.http_proxy,
             verbose=verbose,
         ),
     )
