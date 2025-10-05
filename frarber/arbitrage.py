@@ -100,6 +100,9 @@ async def create_arbitrage_order(
             break
 
         if not price_data.spread_percentage > threshold:
+            logger.info(
+                f"Waiting for arbitrage opportunity... {price_data}, {threshold}"
+            )
             continue
 
         remaining_size = total_size - transacted_size
