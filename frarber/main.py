@@ -3,6 +3,7 @@ import asyncio
 from typer import Typer
 
 from frarber.arbitrage import create_arbitrage_order
+from frarber.calculate import calculate_unit_size
 from frarber.enums.action import Action
 from frarber.enums.exchange_type import ExchangeType
 from frarber.exchange import create_exchange
@@ -124,6 +125,34 @@ def price_diff(
         ):
             pass
         await asyncio.gather(buy_exchange.close(), sell_exchange.close())
+
+    asyncio.run(main())
+
+
+@app.command()
+def unit_size(
+    exchange_type: ExchangeType,
+    symbol: str,
+    target_amount: float,
+):
+    """
+    Calculate the maximum unit size that can be bought with the target amount on the given exchange.
+
+    :param exchange: The exchange to use for the calculation.
+    :param symbol: The trading pair symbol (e.g., 'BTC/USD').
+    :param target_amount: The amount of quote currency to spend (e.g., USD).
+    """
+
+    exchange = create_exchange(exchange_type, with_credential=False)
+
+    async def main():
+        unit_size = await calculate_unit_size(
+            exchange=exchange,
+            symbol=symbol,
+            target_amount=target_amount,
+        )
+        print(f"Maximum unit size that can be bought: {unit_size}")
+        await exchange.close()
 
     asyncio.run(main())
 
