@@ -106,7 +106,7 @@ frarber price-diff [BUY_EXCHANGE] [SELL_EXCHANGE] [SYMBOL]
 
 **Example:**
 ```bash
-frarber price-diff binanceusdm bybit BTC/USDT:USDT
+frarber price-diff binanceusdm bybit BTC
 ```
 
 **Options:**
@@ -123,7 +123,7 @@ frarber open [LONG_EXCHANGE] [SHORT_EXCHANGE] [SYMBOL] [TOTAL_SIZE]
 
 **Example:**
 ```bash
-frarber open binanceusdm bybit BTC/USDT:USDT 0.1 --threshold 0.1
+frarber open binanceusdm bybit BTC 0.1 --threshold 0.1
 ``` 
 
 **Options:**
@@ -140,7 +140,7 @@ frarber close [LONG_EXCHANGE] [SHORT_EXCHANGE] [SYMBOL] [TOTAL_SIZE]
 
 **Example:**
 ```bash
-frarber close binanceusdm bybit BTC/USDT:USDT 0.1
+frarber close binanceusdm bybit BTC 0.1
 ```
 
 **Options:**

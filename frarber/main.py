@@ -6,8 +6,11 @@ from frarber.arbitrage import create_arbitrage_order
 from frarber.calculate import calculate_unit_size
 from frarber.enums.action import Action
 from frarber.enums.exchange_type import ExchangeType
+from frarber.enums.threshold_direction import ThresholdDirection
+from frarber.equity_alert import monitor_equity_threshold
 from frarber.exchange import create_exchange
 from frarber.price_diff import stream_price_diff
+from frarber.utils.symbol import derive_symbol
 
 app = Typer()
 
@@ -34,13 +37,16 @@ def open(
 
     long_exchange = create_exchange(long_exchange_type)
     short_exchange = create_exchange(short_exchange_type)
+    long_symbol = derive_symbol(long_exchange_type, symbol)
+    short_symbol = derive_symbol(short_exchange_type, symbol)
 
     asyncio.run(
         create_arbitrage_order(
             action=Action.OPEN,
             long_exchange=long_exchange,
             short_exchange=short_exchange,
-            symbol=symbol,
+            long_symbol=long_symbol,
+            short_symbol=short_symbol,
             total_size=total_size,
             timeout=timeout,
             threshold=threshold,
@@ -81,7 +87,8 @@ def close(
             action=Action.CLOSE,
             long_exchange=long_exchange,
             short_exchange=short_exchange,
-            symbol=symbol,
+            long_symbol=derive_symbol(long_exchange_type, symbol),
+            short_symbol=derive_symbol(short_exchange_type, symbol),
             total_size=total_size,
             timeout=timeout,
             threshold=threshold,
@@ -119,7 +126,8 @@ def price_diff(
         async for _ in stream_price_diff(
             buy_exchange=buy_exchange,
             sell_exchange=sell_exchange,
-            symbol=symbol,
+            buy_symbol=derive_symbol(buy_exchange_type, symbol),
+            sell_symbol=derive_symbol(sell_exchange_type, symbol),
             update_interval=update_interval,
             log_updates=log_updates,
         ):
@@ -144,6 +152,7 @@ def unit_size(
     """
 
     exchange = create_exchange(exchange_type, with_credential=False)
+    symbol = derive_symbol(exchange_type, symbol)
 
     async def main():
         unit_size = await calculate_unit_size(
@@ -153,6 +162,40 @@ def unit_size(
         )
         print(f"Maximum unit size that can be bought: {unit_size}")
         await exchange.close()
+
+    asyncio.run(main())
+
+
+@app.command()
+def equity_alert(
+    exchange_type: ExchangeType,
+    webhook_url: str,
+    threshold: float,
+    direction: ThresholdDirection = ThresholdDirection.BELOW,
+    currency: str = "USDT",
+    check_interval: float = 10.0,
+    balance_type: str | None = None,
+    trigger_once: bool = True,
+):
+    """Send a webhook alert when the futures account equity crosses the threshold."""
+
+    exchange = create_exchange(exchange_type)
+
+    async def main() -> None:
+        try:
+            await monitor_equity_threshold(
+                exchange=exchange,
+                exchange_type=exchange_type,
+                threshold=threshold,
+                direction=direction,
+                webhook_url=webhook_url,
+                currency=currency,
+                check_interval=check_interval,
+                trigger_once=trigger_once,
+                balance_type=balance_type,
+            )
+        finally:
+            await exchange.close()  # type: ignore[attr-defined]
 
     asyncio.run(main())
 

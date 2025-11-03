@@ -14,6 +14,7 @@ class ExchangeConfig(BaseModel):
     api_key: SecretStr
     api_secret: SecretStr
     password: Optional[SecretStr] = None
+    user_token: Optional[SecretStr] = None
     slow: bool = False
     hedged_mode: bool = False
 

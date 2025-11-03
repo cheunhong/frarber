@@ -50,7 +50,8 @@ class PriceDifferenceData(BaseModel):
 async def stream_price_diff(
     buy_exchange: Exchange,
     sell_exchange: Exchange,
-    symbol: str,
+    buy_symbol: str,
+    sell_symbol: str,
     update_interval: float = 0.5,
     log_updates: bool = True,
 ) -> AsyncGenerator[PriceDifferenceData, None]:
@@ -64,8 +65,9 @@ async def stream_price_diff(
     :param log_updates: Whether to log price updates
     :yield: PriceDifferenceData objects with current price information
     """
-    buy_exchange_type = ExchangeType(buy_exchange.__class__.__name__)
-    sell_exchange_type = ExchangeType(sell_exchange.__class__.__name__)
+    buy_exchange_type = ExchangeType(buy_exchange.__class__.__name__.lower())
+    sell_exchange_type = ExchangeType(sell_exchange.__class__.__name__.lower())
+    symbol = buy_symbol.split("/")[0]  # Use base currency for logging
 
     logger.info(
         f"Starting price difference stream for {symbol} | "
@@ -74,8 +76,8 @@ async def stream_price_diff(
 
     while True:
         buy_orderbook, sell_orderbook = await asyncio.gather(
-            buy_exchange.watch_order_book(symbol),
-            sell_exchange.watch_order_book(symbol),
+            buy_exchange.watch_order_book(buy_symbol),
+            sell_exchange.watch_order_book(sell_symbol),
             return_exceptions=True,
         )
 

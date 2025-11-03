@@ -40,7 +40,8 @@ async def create_arbitrage_order(
     action: Action,
     long_exchange: Exchange,
     short_exchange: Exchange,
-    symbol: str,
+    long_symbol: str,
+    short_symbol: str,
     total_size: float,
     timeout: int = DEFAULT_TIMEOUT,
     threshold: float = DEFAULT_THRESHOLD,
@@ -61,8 +62,9 @@ async def create_arbitrage_order(
 
     config = load_config()
     exchanges = config.exchanges
-    long_exchange_type = ExchangeType(long_exchange.__class__.__name__)
-    short_exchange_type = ExchangeType(short_exchange.__class__.__name__)
+    long_exchange_type = ExchangeType(long_exchange.__class__.__name__.lower())
+    short_exchange_type = ExchangeType(short_exchange.__class__.__name__.lower())
+    symbol = long_symbol.split("/")[0]
     if long_exchange_type not in exchanges:
         raise ValueError(f"Exchange {long_exchange.__class__.__name__} not configured.")
     if short_exchange_type not in exchanges:
@@ -91,7 +93,8 @@ async def create_arbitrage_order(
     async for price_data in stream_price_diff(
         buy_exchange=long_exchange if action == Action.OPEN else short_exchange,
         sell_exchange=short_exchange if action == Action.OPEN else long_exchange,
-        symbol=symbol,
+        buy_symbol=long_symbol if action == Action.OPEN else short_symbol,
+        sell_symbol=short_symbol if action == Action.OPEN else long_symbol,
         update_interval=1.0,
         log_updates=False,
     ):
@@ -117,8 +120,10 @@ async def create_arbitrage_order(
         try:
             current_order_size = float(
                 max(
-                    long_exchange.amount_to_precision(symbol, current_order_size),
-                    short_exchange.amount_to_precision(symbol, current_order_size),
+                    long_exchange.amount_to_precision(long_symbol, current_order_size),
+                    short_exchange.amount_to_precision(
+                        short_symbol, current_order_size
+                    ),
                 )
             )
         except InvalidOrder as e:
@@ -127,8 +132,10 @@ async def create_arbitrage_order(
 
         long_notional = current_order_size * price_data.best_ask
         short_notional = current_order_size * price_data.best_bid
-        min_long_notional = long_exchange.market(symbol)["limits"]["cost"]["min"]
-        min_short_notional = short_exchange.market(symbol)["limits"]["cost"]["min"]
+        min_long_notional = long_exchange.market(long_symbol)["limits"]["cost"]["min"]
+        min_short_notional = short_exchange.market(short_symbol)["limits"]["cost"][
+            "min"
+        ]
 
         if min_long_notional is not None and long_notional < min_long_notional:
             logger.warning(
@@ -149,14 +156,14 @@ async def create_arbitrage_order(
         # Place limit orders at best prices
         await asyncio.gather(
             long_exchange.create_order(
-                symbol=symbol,
+                symbol=long_symbol,
                 type="market",
                 side="buy" if action == Action.OPEN else "sell",
                 amount=current_order_size,
                 params=long_params,
             ),
             short_exchange.create_order(
-                symbol=symbol,
+                symbol=short_symbol,
                 type="market",
                 side="sell" if action == Action.OPEN else "buy",
                 amount=current_order_size,

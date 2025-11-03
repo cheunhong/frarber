@@ -25,4 +25,5 @@ class ExchangeType(Enum):
     UPBIT = "upbit"
     WOO = "woo"
     MEXC = "mexc"
+    MEXC_USDTM = "mexcusdtm"
     LBANK = "lbank"
