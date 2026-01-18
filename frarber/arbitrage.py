@@ -81,12 +81,18 @@ async def create_arbitrage_order(
             action=action,
             position_side=PositionSide.LONG,
         )
+    else:
+        if action == Action.CLOSE:
+            long_params["reduceOnly"] = True
     if short_exchange_config.hedged_mode:
         short_params = derive_hedged_mode_order_params(
             exchange=short_exchange_type,
             action=action,
             position_side=PositionSide.SHORT,
         )
+    else:
+        if action == Action.CLOSE:
+            short_params["reduceOnly"] = True
 
     transacted_size = 0
 
