@@ -14,6 +14,7 @@ from .price_diff import stream_price_diff
 
 DEFAULT_TIMEOUT = 1800  # 30 minutes
 DEFAULT_THRESHOLD = 0.0  # 0.0% price difference threshold
+MIN_ORDER_AMOUNT = 10
 
 
 def derive_hedged_mode_order_params(
@@ -138,6 +139,13 @@ async def create_arbitrage_order(
 
         long_notional = current_order_size * price_data.best_ask
         short_notional = current_order_size * price_data.best_bid
+
+        if long_notional < MIN_ORDER_AMOUNT or short_notional < MIN_ORDER_AMOUNT:
+            logger.warning(
+                f"Skipping order: notional too small (long: {long_notional:.2f}, short: {short_notional:.2f}, min: {MIN_ORDER_AMOUNT})"
+            )
+            continue
+
         min_long_notional = long_exchange.market(long_symbol)["limits"]["cost"]["min"]
         min_short_notional = short_exchange.market(short_symbol)["limits"]["cost"][
             "min"
